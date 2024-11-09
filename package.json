@@ -1,0 +1,10 @@
+{
+  "name": "building-control",
+  "version": "1.0.0",
+  "scripts": {
+    "start:server": "cd server/ && npm run start:dev",
+    "build:server": "cd server/ && npm run build"
+  },
+  "author": "Filip Johansson",
+  "license": "ISC"
+}
