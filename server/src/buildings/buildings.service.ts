@@ -1,26 +1,44 @@
 import { Injectable } from '@nestjs/common';
 import { CreateBuildingDto } from './dto/create-building.dto';
 import { UpdateBuildingDto } from './dto/update-building.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Building } from './entities/building.entity';
 
 @Injectable()
 export class BuildingsService {
-  create(createBuildingDto: CreateBuildingDto) {
-    return 'This action adds a new building';
+  constructor(
+    @InjectRepository(Building)
+    private readonly itemsRepository: Repository<Building>,
+  ) {}
+
+  async create(createBuildingDto: CreateBuildingDto) {
+    const building = new Building({
+      ...createBuildingDto,
+    });
+    this.itemsRepository.save(building);
   }
 
-  findAll() {
-    return `This action returns all buildings`;
+  async findAll() {
+    return await this.itemsRepository.find();
   }
 
   findOne(id: number) {
-    return `This action returns a #${id} building`;
+    return this.itemsRepository.findOne({
+      where: { id },
+      relations: { temperatureSensors: true },
+    });
   }
 
-  update(id: number, updateBuildingDto: UpdateBuildingDto) {
-    return `This action updates a #${id} building`;
+  async update(id: number, updateBuildingDto: UpdateBuildingDto) {
+    const building = await this.itemsRepository.findOneBy({ id });
+    building.name = updateBuildingDto.name;
+    building.location = updateBuildingDto.location;
+
+    this.itemsRepository.save(building);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} building`;
+  async remove(id: number) {
+    await this.itemsRepository.delete(id);
   }
 }
