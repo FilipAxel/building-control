@@ -2,7 +2,7 @@ import { DataSource } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
 import { config } from 'dotenv';
 import { Building } from './src/buildings/entities/building.entity';
-import { TemperatureSensor } from './src/buildings/entities/temperature-sensor.entity';
+import { TemperatureSensor } from './src/temperature-sensor/entities/temperature-sensor.entity';
 
 config();
 
