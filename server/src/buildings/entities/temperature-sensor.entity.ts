@@ -14,7 +14,7 @@ export class TemperatureSensor extends AbstractEntity<TemperatureSensor> {
   temperature: number;
 
   @Column({ default: true })
-  status: boolean;
+  isActive: boolean;
 
   @ManyToOne(() => Building, (building) => building.temperatureSensors)
   building: Building;
