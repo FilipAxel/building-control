@@ -1,6 +1,6 @@
 import { AbstractEntity } from '../../database/abstract.entity';
 import { Column, Entity, OneToMany } from 'typeorm';
-import { TemperatureSensor } from './temperature-sensor.entity';
+import { TemperatureSensor } from '../../temperature-sensor/entities/temperature-sensor.entity';
 
 @Entity()
 export class Building extends AbstractEntity<Building> {
