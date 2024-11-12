@@ -1,41 +1,23 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { deleteBuilding, fetchBuildings } from "../../api/building-api";
-import {
-  Button,
-  Card,
-  CardContent,
-  IconButton,
-  Menu,
-  MenuItem,
-  Stack,
-  Typography,
-} from "@mui/material";
+import { Box, CircularProgress, Snackbar, Stack } from "@mui/material";
 import UpdateBuildingDialog from "./UpdateBuildingDialog";
 import CreateBuildingDialog from "./CreateBuildingDialog";
 import { useState } from "react";
 import { Building } from "./building-interface";
 import "./Building.css";
-import SettingsIcon from "@mui/icons-material/Settings";
-import TemperatureSensorComponent from "../temperature-sensor/TemperatureSensorComponent";
-import CreateTemperatureSensorDialog from "../temperature-sensor/CreateTemperatureSensorDialog";
-import { getAverageBuildingTemperature } from "../../api/temperature-sensor-api";
+import BuildingCardComponent from "./BuildingCardComponent";
 
 const BuildingComponent: React.FC = () => {
   const queryClient = useQueryClient();
-  const [averageTempMap, setAverageTempMap] = useState<{
-    [key: number]: number | undefined;
-  }>({});
   const [selectedBuilding, setSelectedBuilding] = useState<Building | null>(
     null
   );
-  const [currentBuildingId, setCurrentBuildingId] = useState<number | null>(
-    null
-  );
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const open = Boolean(anchorEl);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState<string>("");
 
-  const { data: buildings } = useQuery<Building[]>({
+  const { data: buildings, isLoading } = useQuery<Building[]>({
     queryKey: ["buildings"],
     queryFn: fetchBuildings,
   });
@@ -45,42 +27,21 @@ const BuildingComponent: React.FC = () => {
     onSuccess() {
       queryClient.invalidateQueries({ queryKey: ["buildings"] });
     },
-  });
-  const { mutate: mutateAverageTemp } = useMutation({
-    mutationFn: (buildingId: number) =>
-      getAverageBuildingTemperature(buildingId),
-    onSuccess: (data, variables) => {
-      setAverageTempMap((prev) => ({
-        ...prev,
-        [variables]: data,
-      }));
+    onError: (error: any) => {
+      setSnackbarMessage(error?.response?.data?.message || "An error occurred");
+      setSnackbarOpen(true);
     },
   });
-
-  const handleClick = (
-    event: React.MouseEvent<HTMLButtonElement>,
-    buildingId: number
-  ) => {
-    setAnchorEl(event.currentTarget);
-    setCurrentBuildingId(buildingId);
-  };
-
-  const handleMenuClose = () => {
-    setAnchorEl(null);
-    setCurrentBuildingId(null);
-  };
 
   const handleDialogOpen = (building: Building) => {
     setSelectedBuilding(building);
     setDialogOpen(true);
-    handleMenuClose();
   };
 
   const handleDialogClose = () => {
     setDialogOpen(false);
     setSelectedBuilding(null);
   };
-
   return (
     <>
       <div className="title-container">
@@ -88,96 +49,20 @@ const BuildingComponent: React.FC = () => {
         <CreateBuildingDialog />
       </div>
       <Stack spacing={2}>
-        {buildings?.map((building, index) => (
-          <Card key={index} sx={{ minWidth: 275, padding: "5px" }}>
-            <CardContent sx={{ padding: "8px" }}>
-              <div id="menu">
-                <div>
-                  <Typography
-                    gutterBottom
-                    sx={{ color: "text.primary", fontSize: 18 }}
-                  >
-                    {building.name}
-                  </Typography>
-                  <Typography sx={{ color: "text.secondary", mb: 1.5 }}>
-                    Location: {building.location}
-                  </Typography>
-                </div>
-                <div>
-                  <Button onClick={() => mutateAverageTemp(building.id)}>
-                    Check the buildings average temperature
-                  </Button>
-                  {averageTempMap[building.id] ? (
-                    <p>
-                      Average building Temperature:&nbsp;
-                      <b>{averageTempMap[building.id]}°C</b>
-                    </p>
-                  ) : undefined}
-                </div>
-                <div>
-                  <IconButton
-                    id={`building-menu-button-${building.id}`}
-                    aria-controls={
-                      open && currentBuildingId === building.id
-                        ? `basic-${building.id}`
-                        : undefined
-                    }
-                    aria-haspopup="true"
-                    aria-expanded={
-                      open && currentBuildingId === building.id
-                        ? "true"
-                        : undefined
-                    }
-                    onClick={(event) => handleClick(event, building.id)}
-                  >
-                    <SettingsIcon />
-                  </IconButton>
-                  <Menu
-                    id={`basic-menu-${building.id}`}
-                    anchorEl={anchorEl}
-                    open={open && currentBuildingId === building.id}
-                    onClose={handleMenuClose}
-                    MenuListProps={{
-                      "aria-labelledby": `building-menu-button-${building.id}`,
-                    }}
-                  >
-                    <MenuItem onClick={() => handleDialogOpen(building)}>
-                      Edit Building
-                    </MenuItem>
-                    <MenuItem
-                      sx={{ color: "red" }}
-                      onClick={() => {
-                        mutateDeleteBuilding(building);
-                        handleMenuClose();
-                      }}
-                    >
-                      Delete
-                    </MenuItem>
-                  </Menu>
-                </div>
-              </div>
-
-              <div>
-                <h3>
-                  {building.temperatureSensors.length
-                    ? "Sensors"
-                    : "No sensors installed"}
-                </h3>
-                <CreateTemperatureSensorDialog buildingId={building.id} />
-              </div>
-              {building.temperatureSensors.length ? (
-                <div className="temperature-container">
-                  {building.temperatureSensors.map((tempSensor, index) => (
-                    <TemperatureSensorComponent
-                      tempSensor={tempSensor}
-                      key={index}
-                    />
-                  ))}
-                </div>
-              ) : undefined}
-            </CardContent>
-          </Card>
-        ))}
+        {isLoading ? (
+          <Box sx={{ display: "flex", justifyContent: "center" }}>
+            <CircularProgress size={"10rem"} />
+          </Box>
+        ) : (
+          buildings?.map((building, index) => (
+            <BuildingCardComponent
+              key={index}
+              building={building}
+              onEditBuilding={handleDialogOpen}
+              onDeleteBuilding={(building) => mutateDeleteBuilding(building)}
+            />
+          ))
+        )}
 
         {selectedBuilding ? (
           <UpdateBuildingDialog
@@ -187,6 +72,11 @@ const BuildingComponent: React.FC = () => {
           />
         ) : undefined}
       </Stack>
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={3500}
+        message={snackbarMessage}
+      />
     </>
   );
 };
