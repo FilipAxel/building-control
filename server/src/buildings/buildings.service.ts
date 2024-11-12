@@ -16,7 +16,7 @@ export class BuildingsService {
     const building = new Building({
       ...createBuildingDto,
     });
-    this.itemsRepository.save(building);
+    return await this.itemsRepository.save(building);
   }
 
   async findAll() {
@@ -35,7 +35,8 @@ export class BuildingsService {
     building.name = updateBuildingDto.name;
     building.location = updateBuildingDto.location;
 
-    this.itemsRepository.save(building);
+    const updatedBuilding = await this.itemsRepository.save(building);
+    return updatedBuilding;
   }
 
   async remove(id: number) {

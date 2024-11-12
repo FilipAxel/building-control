@@ -1,0 +1,10 @@
+#menu {
+  display: flex;
+  justify-content: space-between;
+}
+
+.title-container {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}

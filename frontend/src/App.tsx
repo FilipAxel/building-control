@@ -1,5 +1,13 @@
+import BuildingComponent from "./components/buildings/BuildingComponent";
+
+
+
 function App() {
-  return <p>Hello World 👽</p>;
+  return (
+    <main>
+      <BuildingComponent />
+    </main>
+  );
 }
 
 export default App;
