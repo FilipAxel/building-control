@@ -1,6 +1,9 @@
 #menu {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
+  background-color: aliceblue;
+  padding: 10px;
 }
 
 .title-container {

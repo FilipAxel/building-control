@@ -38,3 +38,10 @@ export const deleteTempSensor = async (tempSensorId: number) => {
   );
   return data;
 };
+
+export const getAverageBuildingTemperature = async (buildingId: number) => {
+  const { data } = await axios.get(
+    `${process.env.REACT_APP_API_URL}/buildings/${buildingId}/average-temperature`
+  );
+  return data;
+};

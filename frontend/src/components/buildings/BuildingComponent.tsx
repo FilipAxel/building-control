@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { deleteBuilding, fetchBuildings } from "../../api/building-api";
 import {
+  Button,
   Card,
   CardContent,
   IconButton,
@@ -17,19 +18,13 @@ import "./Building.css";
 import SettingsIcon from "@mui/icons-material/Settings";
 import TemperatureSensorComponent from "../temperature-sensor/TemperatureSensorComponent";
 import CreateTemperatureSensorDialog from "../temperature-sensor/CreateTemperatureSensorDialog";
+import { getAverageBuildingTemperature } from "../../api/temperature-sensor-api";
 
 const BuildingComponent: React.FC = () => {
   const queryClient = useQueryClient();
-  const { data: buildings } = useQuery<Building[]>({
-    queryKey: ["buildings"],
-    queryFn: fetchBuildings,
-  });
-  const { mutate: mutateDeleteBuilding } = useMutation({
-    mutationFn: (building: Building) => deleteBuilding(building.id),
-    onSuccess() {
-      queryClient.invalidateQueries({ queryKey: ["buildings"] });
-    },
-  });
+  const [averageTempMap, setAverageTempMap] = useState<{
+    [key: number]: number | undefined;
+  }>({});
   const [selectedBuilding, setSelectedBuilding] = useState<Building | null>(
     null
   );
@@ -39,6 +34,28 @@ const BuildingComponent: React.FC = () => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const open = Boolean(anchorEl);
+
+  const { data: buildings } = useQuery<Building[]>({
+    queryKey: ["buildings"],
+    queryFn: fetchBuildings,
+  });
+
+  const { mutate: mutateDeleteBuilding } = useMutation({
+    mutationFn: (building: Building) => deleteBuilding(building.id),
+    onSuccess() {
+      queryClient.invalidateQueries({ queryKey: ["buildings"] });
+    },
+  });
+  const { mutate: mutateAverageTemp } = useMutation({
+    mutationFn: (buildingId: number) =>
+      getAverageBuildingTemperature(buildingId),
+    onSuccess: (data, variables) => {
+      setAverageTempMap((prev) => ({
+        ...prev,
+        [variables]: data,
+      }));
+    },
+  });
 
   const handleClick = (
     event: React.MouseEvent<HTMLButtonElement>,
@@ -75,12 +92,28 @@ const BuildingComponent: React.FC = () => {
           <Card key={index} sx={{ minWidth: 275, padding: "5px" }}>
             <CardContent sx={{ padding: "8px" }}>
               <div id="menu">
-                <Typography
-                  gutterBottom
-                  sx={{ color: "text.primary", fontSize: 18 }}
-                >
-                  {building.name}
-                </Typography>
+                <div>
+                  <Typography
+                    gutterBottom
+                    sx={{ color: "text.primary", fontSize: 18 }}
+                  >
+                    {building.name}
+                  </Typography>
+                  <Typography sx={{ color: "text.secondary", mb: 1.5 }}>
+                    Location: {building.location}
+                  </Typography>
+                </div>
+                <div>
+                  <Button onClick={() => mutateAverageTemp(building.id)}>
+                    Check the buildings average temperature
+                  </Button>
+                  {averageTempMap[building.id] ? (
+                    <p>
+                      Average building Temperature:&nbsp;
+                      <b>{averageTempMap[building.id]}°C</b>
+                    </p>
+                  ) : undefined}
+                </div>
                 <div>
                   <IconButton
                     id={`building-menu-button-${building.id}`}
@@ -123,9 +156,7 @@ const BuildingComponent: React.FC = () => {
                   </Menu>
                 </div>
               </div>
-              <Typography sx={{ color: "text.secondary", mb: 1.5 }}>
-                Location: {building.location}
-              </Typography>
+
               <div>
                 <h3>
                   {building.temperatureSensors.length
