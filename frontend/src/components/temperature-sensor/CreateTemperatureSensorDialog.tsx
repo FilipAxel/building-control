@@ -7,6 +7,7 @@ import {
   DialogActions,
   FormControlLabel,
   Checkbox,
+  Snackbar,
 } from "@mui/material";
 import { useState } from "react";
 import { CreateTemperatureSensorDto } from "./temperature-sensor-interface";
@@ -19,6 +20,8 @@ const CreateTemperatureSensorDialog: React.FC<{
   const queryClient = useQueryClient();
   const [checked, setChecked] = useState(true);
   const [open, setOpen] = useState(false);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState<string>("");
 
   const handleDialogOpen = () => {
     setOpen(true);
@@ -38,8 +41,9 @@ const CreateTemperatureSensorDialog: React.FC<{
       queryClient.invalidateQueries({ queryKey: ["buildings"] });
       handleDialogClose();
     },
-    onError: (error) => {
-      console.error("error", error);
+    onError: (error: any) => {
+      setSnackbarMessage(error?.response?.data?.message || "An error occurred");
+      setSnackbarOpen(true);
     },
   });
 
@@ -108,6 +112,11 @@ const CreateTemperatureSensorDialog: React.FC<{
           <Button type="submit">Save</Button>
         </DialogActions>
       </Dialog>
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={3500}
+        message={snackbarMessage}
+      />
     </>
   );
 };

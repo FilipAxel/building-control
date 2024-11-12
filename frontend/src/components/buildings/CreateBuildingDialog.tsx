@@ -13,18 +13,14 @@ import { CreateBuildingDto } from "./building-interface";
 
 const CreateBuildingDialog = () => {
   const queryClient = useQueryClient();
-
+  const [open, setOpen] = React.useState(false);
   const { mutate: mutateCreateBuilding } = useMutation({
     mutationFn: (building: CreateBuildingDto) => createBuilding(building),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["buildings"] });
       handleDialogClose();
     },
-    onError: (error) => {
-      console.error("error", error);
-    },
   });
-  const [open, setOpen] = React.useState(false);
 
   const handleDialogClickOpen = () => {
     setOpen(true);

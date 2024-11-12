@@ -1,6 +1,6 @@
 import { TemperatureSensor } from "./temperature-sensor-interface";
 import "./TemperatureSensor.css";
-import { Chip, IconButton, Menu, MenuItem } from "@mui/material";
+import { Chip, IconButton, Menu, MenuItem, Snackbar } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import { useState } from "react";
 import UpdateTemperatureSensorDialog from "./UpdateTemperatureSensorDialog";
@@ -19,12 +19,18 @@ const TemperatureSensorComponent: React.FC<{
   const open = Boolean(anchorEl);
   const [selectedTempSensor, setSelectedTempSensor] =
     useState<TemperatureSensor | null>(null);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState<string>("");
 
   const { mutate: mutateDeleteTempSensor } = useMutation({
     mutationFn: (tempSensor: TemperatureSensor) =>
       deleteTempSensor(tempSensor.id),
     onSuccess() {
       queryClient.invalidateQueries({ queryKey: ["buildings"] });
+    },
+    onError: (error: any) => {
+      setSnackbarMessage(error?.response?.data?.message || "An error occurred");
+      setSnackbarOpen(true);
     },
   });
 
@@ -120,6 +126,11 @@ const TemperatureSensorComponent: React.FC<{
           onClose={handleDialogClose}
         />
       ) : undefined}
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={3500}
+        message={snackbarMessage}
+      />
     </>
   );
 };

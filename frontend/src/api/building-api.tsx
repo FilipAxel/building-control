@@ -4,7 +4,7 @@ import {
   CreateBuildingDto,
 } from "../components/buildings/building-interface";
 
-export const fetchBuildings = async (): Promise<Building[]> => {
+export const fetchBuildings = async () => {
   const { data } = await axios.get(
     `${process.env.REACT_APP_API_URL}/buildings`
   );

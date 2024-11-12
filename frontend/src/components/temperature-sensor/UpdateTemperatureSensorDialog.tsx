@@ -7,6 +7,7 @@ import {
   Button,
   FormControlLabel,
   Checkbox,
+  Snackbar,
 } from "@mui/material";
 import { TemperatureSensor } from "./temperature-sensor-interface";
 import { useState } from "react";
@@ -25,6 +26,8 @@ const UpdateTemperatureSensorDialog: React.FC<tempSensorDialogProps> = ({
 }) => {
   const queryClient = useQueryClient();
   const [checked, setChecked] = useState(tempSensor.isActive);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState<string>("");
 
   const handleIsActiveChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setChecked(event.target.checked);
@@ -36,8 +39,9 @@ const UpdateTemperatureSensorDialog: React.FC<tempSensorDialogProps> = ({
       queryClient.invalidateQueries({ queryKey: ["buildings"] });
       onClose();
     },
-    onError: (error) => {
-      console.error("error", error);
+    onError: (error: any) => {
+      setSnackbarMessage(error?.response?.data?.message || "An error occurred");
+      setSnackbarOpen(true);
     },
   });
 
@@ -55,54 +59,61 @@ const UpdateTemperatureSensorDialog: React.FC<tempSensorDialogProps> = ({
   };
 
   return (
-    <Dialog
-      open={open}
-      onClose={onClose}
-      PaperProps={{
-        component: "form",
-        onSubmit: (event: React.FormEvent<HTMLFormElement>) =>
-          submitForm(event),
-      }}
-    >
-      <DialogTitle>Edit {tempSensor.name}</DialogTitle>
-      <DialogContent>
-        <TextField
-          autoFocus
-          required
-          margin="dense"
-          id="name"
-          name="name"
-          label="Name"
-          type="name"
-          fullWidth
-          variant="standard"
-          defaultValue={tempSensor.name}
-        />
-        <TextField
-          required
-          margin="dense"
-          id="location"
-          name="location"
-          label="Location"
-          type="text"
-          fullWidth
-          variant="standard"
-          defaultValue={tempSensor.location}
-        />
-        <FormControlLabel
-          control={
-            <Checkbox checked={checked} onChange={handleIsActiveChange} />
-          }
-          label="Active"
-        />
-      </DialogContent>
-      <DialogActions>
-        <Button color="error" onClick={onClose}>
-          Cancel
-        </Button>
-        <Button type="submit">Save</Button>
-      </DialogActions>
-    </Dialog>
+    <>
+      <Dialog
+        open={open}
+        onClose={onClose}
+        PaperProps={{
+          component: "form",
+          onSubmit: (event: React.FormEvent<HTMLFormElement>) =>
+            submitForm(event),
+        }}
+      >
+        <DialogTitle>Edit {tempSensor.name}</DialogTitle>
+        <DialogContent>
+          <TextField
+            autoFocus
+            required
+            margin="dense"
+            id="name"
+            name="name"
+            label="Name"
+            type="name"
+            fullWidth
+            variant="standard"
+            defaultValue={tempSensor.name}
+          />
+          <TextField
+            required
+            margin="dense"
+            id="location"
+            name="location"
+            label="Location"
+            type="text"
+            fullWidth
+            variant="standard"
+            defaultValue={tempSensor.location}
+          />
+          <FormControlLabel
+            control={
+              <Checkbox checked={checked} onChange={handleIsActiveChange} />
+            }
+            label="Active"
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button color="error" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button type="submit">Save</Button>
+        </DialogActions>
+      </Dialog>
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={3500}
+        message={snackbarMessage}
+      />
+    </>
   );
 };
 
