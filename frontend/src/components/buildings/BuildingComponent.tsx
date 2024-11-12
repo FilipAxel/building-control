@@ -15,6 +15,8 @@ import { useState } from "react";
 import { Building } from "./building-interface";
 import "./Building.css";
 import SettingsIcon from "@mui/icons-material/Settings";
+import TemperatureSensorComponent from "../temperature-sensor/TemperatureSensorComponent";
+import CreateTemperatureSensorDialog from "../temperature-sensor/CreateTemperatureSensorDialog";
 
 const BuildingComponent: React.FC = () => {
   const queryClient = useQueryClient();
@@ -124,6 +126,24 @@ const BuildingComponent: React.FC = () => {
               <Typography sx={{ color: "text.secondary", mb: 1.5 }}>
                 Location: {building.location}
               </Typography>
+              <div>
+                <h3>
+                  {building.temperatureSensors.length
+                    ? "Sensors"
+                    : "No sensors installed"}
+                </h3>
+                <CreateTemperatureSensorDialog buildingId={building.id} />
+              </div>
+              {building.temperatureSensors.length ? (
+                <div className="temperature-container">
+                  {building.temperatureSensors.map((tempSensor, index) => (
+                    <TemperatureSensorComponent
+                      tempSensor={tempSensor}
+                      key={index}
+                    />
+                  ))}
+                </div>
+              ) : undefined}
             </CardContent>
           </Card>
         ))}

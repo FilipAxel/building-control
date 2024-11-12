@@ -8,3 +8,10 @@
   align-items: center;
   gap: 2rem;
 }
+
+.temperature-container {
+  margin-top: 1rem;
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}

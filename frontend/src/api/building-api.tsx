@@ -25,7 +25,7 @@ export const createBuilding = async (building: CreateBuildingDto) => {
 };
 
 export const updateBuilding = async (building: Building) => {
-  const response = await axios.patch(
+  const { data } = await axios.patch(
     `${process.env.REACT_APP_API_URL}/buildings/${building.id}`,
     building,
     {
@@ -34,7 +34,7 @@ export const updateBuilding = async (building: Building) => {
       },
     }
   );
-  return response.data;
+  return data;
 };
 
 export const deleteBuilding = async (buildingId: number) => {

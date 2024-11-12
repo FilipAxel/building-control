@@ -18,7 +18,7 @@ const CreateBuildingDialog = () => {
     mutationFn: (building: CreateBuildingDto) => createBuilding(building),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["buildings"] });
-      handleClose();
+      handleDialogClose();
     },
     onError: (error) => {
       console.error("error", error);
@@ -26,11 +26,11 @@ const CreateBuildingDialog = () => {
   });
   const [open, setOpen] = React.useState(false);
 
-  const handleClickOpen = () => {
+  const handleDialogClickOpen = () => {
     setOpen(true);
   };
 
-  const handleClose = () => {
+  const handleDialogClose = () => {
     setOpen(false);
   };
 
@@ -50,13 +50,13 @@ const CreateBuildingDialog = () => {
       <Button
         sx={{ height: "50%" }}
         variant="outlined"
-        onClick={handleClickOpen}
+        onClick={handleDialogClickOpen}
       >
         Create Building
       </Button>
       <Dialog
         open={open}
-        onClose={handleClose}
+        onClose={handleDialogClose}
         PaperProps={{
           component: "form",
           onSubmit: (event: React.FormEvent<HTMLFormElement>) =>
@@ -88,7 +88,7 @@ const CreateBuildingDialog = () => {
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose}>Cancel</Button>
+          <Button onClick={handleDialogClose}>Cancel</Button>
           <Button type="submit">Save</Button>
         </DialogActions>
       </Dialog>

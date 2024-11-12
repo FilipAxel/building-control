@@ -1,0 +1,13 @@
+.status-name-layout {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.temp-sensor-card {
+  display: flex;
+  flex-direction: column;
+  padding: 4px;
+  border: 1px solid rgba(65, 64, 64, 0.87);
+  border-radius: 1%;
+}
