@@ -106,10 +106,11 @@ const TemperatureSensorComponent: React.FC<{
             </Menu>
           </div>
         </div>
-
-        <p>
-          Sensor reading temperature of: <b>{tempSensor.temperature}°C</b>
-        </p>
+        {tempSensor.isActive ? (
+          <p>
+            Sensor reading temperature of: <b>{tempSensor.temperature}°C</b>
+          </p>
+        ) : undefined}
       </div>
 
       {selectedTempSensor ? (
