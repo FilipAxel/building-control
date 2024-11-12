@@ -3,7 +3,10 @@
   "version": "1.0.0",
   "scripts": {
     "start:server": "cd server/ && npm run start:dev",
-    "build:server": "cd server/ && npm run build"
+    "build:server": "cd server/ && npm run build",
+    "start:frontend": "cd frontend/ && npm run start",
+    "build:frontend": "cd frontend/ && npm run build",
+    "install:all": "cd server/ && npm install && cd ../ && cd frontend/ && npm install"
   },
   "author": "Filip Johansson",
   "license": "ISC"

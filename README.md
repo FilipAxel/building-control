@@ -10,8 +10,10 @@
 Update your environment veriables, There is an example environment file in the server/
 Rename the file from .env.example to .env
 
+this script will cd into the server and frontend to do npm install
+
 ```bash
-cd /server && npm run install
+npm run install:all
 ```
 
 ## Setup database with Docker Compose
@@ -20,14 +22,30 @@ cd /server && npm run install
 docker compose up -d
 ```
 
-## Running the app
-
-change directory to /server
+## Running the server
 
 ```bash
 # development (watch mode)
 $ npm run start:server
+```
 
-# production mode
-$ npm run start:prod
+## Build the server
+
+```bash
+# development (watch mode)
+$ npm run build:server
+```
+
+## Running the frontend
+
+```bash
+# development (watch mode)
+$ npm run start:frontend
+```
+
+## build the frontend
+
+```bash
+# development (watch mode)
+$ npm run build:frontend
 ```
