@@ -1,4 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateTemperatureSensorDto } from './dto/create-temperature-sensor.dto';
 import { UpdateTemperatureSensorDto } from './dto/update-temperature-sensor.dto';
 import { EntityManager, Repository } from 'typeorm';
@@ -25,6 +29,12 @@ export class TemperatureSensorService {
       where: { id: createTemperatureSensorDto.buildingId },
     });
 
+    if (!building) {
+      throw new NotFoundException(
+        `Building with ID ${createTemperatureSensorDto.buildingId} not found`,
+      );
+    }
+
     const temperatureSensor = this.temperatureSensorRepository.create({
       ...createTemperatureSensorDto,
       building,
@@ -33,7 +43,11 @@ export class TemperatureSensorService {
       temperatureSensor.temperature = generateRandomTemperature();
     }
 
-    return await this.temperatureSensorRepository.save(temperatureSensor);
+    try {
+      return await this.temperatureSensorRepository.save(temperatureSensor);
+    } catch (error) {
+      throw new BadRequestException('Failed to create temperature sensor');
+    }
   }
 
   async findAll() {
@@ -41,10 +55,14 @@ export class TemperatureSensorService {
   }
 
   async findOne(id: number) {
-    return this.temperatureSensorRepository.findOne({
-      where: { id },
-      relations: { building: true },
-    });
+    try {
+      return this.temperatureSensorRepository.findOneOrFail({
+        where: { id },
+        relations: { building: true },
+      });
+    } catch (error) {
+      throw new NotFoundException(`Temperature sensor with ID ${id} not found`);
+    }
   }
 
   async update(
@@ -55,11 +73,19 @@ export class TemperatureSensorService {
       id,
       ...updateTemperatureSensorDto,
     });
+
+    if (!temperatureSensor) {
+      throw new NotFoundException(`Temperature sensor with ID ${id} not found`);
+    }
     if (temperatureSensor.isActive) {
       temperatureSensor.temperature = generateRandomTemperature();
     }
 
-    return this.temperatureSensorRepository.save(temperatureSensor);
+    try {
+      return await this.temperatureSensorRepository.save(temperatureSensor);
+    } catch (error) {
+      throw new BadRequestException('Failed to update temperature sensor');
+    }
   }
 
   async remove(id: number) {
@@ -77,7 +103,9 @@ export class TemperatureSensorService {
       !building.temperatureSensors ||
       building.temperatureSensors.length === 0
     ) {
-      throw new Error('There is no temperature sensors for this building');
+      throw new NotFoundException(
+        'There is no temperature sensors for this building',
+      );
     }
 
     const activeSensors = building.temperatureSensors.filter(
@@ -85,7 +113,9 @@ export class TemperatureSensorService {
     );
 
     if (activeSensors.length === 0) {
-      throw new Error('No active temperature sensors found');
+      throw new NotFoundException(
+        'No active temperature sensors found for this building',
+      );
     }
 
     const totalTemperature = activeSensors.reduce(

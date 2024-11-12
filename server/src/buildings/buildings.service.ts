@@ -1,4 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateBuildingDto } from './dto/create-building.dto';
 import { UpdateBuildingDto } from './dto/update-building.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -9,39 +13,59 @@ import { Building } from './entities/building.entity';
 export class BuildingsService {
   constructor(
     @InjectRepository(Building)
-    private readonly itemsRepository: Repository<Building>,
+    private readonly buildingRepository: Repository<Building>,
   ) {}
 
   async create(createBuildingDto: CreateBuildingDto) {
     const building = new Building({
       ...createBuildingDto,
     });
-    return await this.itemsRepository.save(building);
+    try {
+      return await this.buildingRepository.save(building);
+    } catch (error) {
+      throw new BadRequestException('Failed to create building');
+    }
   }
 
   async findAll() {
-    return await this.itemsRepository.find({
-      relations: { temperatureSensors: true },
-    });
+    try {
+      return await this.buildingRepository.find({
+        relations: { temperatureSensors: true },
+      });
+    } catch (error) {
+      throw new BadRequestException('Failed to retrieve buildings');
+    }
   }
 
-  findOne(id: number) {
-    return this.itemsRepository.findOne({
-      where: { id },
-      relations: { temperatureSensors: true },
-    });
+  async findOne(id: number) {
+    try {
+      return this.buildingRepository.findOneOrFail({
+        where: { id },
+        relations: { temperatureSensors: true },
+      });
+    } catch (error) {
+      throw new NotFoundException(`Building with ID ${id} not found`);
+    }
   }
 
   async update(id: number, updateBuildingDto: UpdateBuildingDto) {
-    const building = await this.itemsRepository.findOneBy({ id });
+    const building = await this.buildingRepository.findOneBy({ id });
+
+    if (!building) {
+      throw new NotFoundException(`Building with ID ${id} not found`);
+    }
+
     building.name = updateBuildingDto.name;
     building.location = updateBuildingDto.location;
 
-    const updatedBuilding = await this.itemsRepository.save(building);
-    return updatedBuilding;
+    try {
+      await this.buildingRepository.save(building);
+    } catch (error) {
+      throw new BadRequestException('Failed to update building');
+    }
   }
 
   async remove(id: number) {
-    await this.itemsRepository.delete(id);
+    await this.buildingRepository.delete(id);
   }
 }
