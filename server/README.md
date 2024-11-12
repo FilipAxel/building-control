@@ -53,3 +53,7 @@ $ npm run migration:generate --name=EntityName
 ```bash
 $ npm run migration:revert
 ```
+
+### Swagger
+
+You can access the Swagger API documentation by navigating to /api in your browser
