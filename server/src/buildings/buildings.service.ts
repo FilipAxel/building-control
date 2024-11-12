@@ -20,7 +20,9 @@ export class BuildingsService {
   }
 
   async findAll() {
-    return await this.itemsRepository.find();
+    return await this.itemsRepository.find({
+      relations: { temperatureSensors: true },
+    });
   }
 
   findOne(id: number) {
