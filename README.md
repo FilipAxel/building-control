@@ -7,7 +7,7 @@
 
 ## installation
 
-Update your environment veriables, There is an example environment file in the server/
+Update your environment veriables, There is an example environment file in the server/ and frontend/
 Rename the file from .env.example to .env
 
 this script will cd into the server and frontend to do npm install
@@ -20,6 +20,12 @@ npm run install:all
 
 ```bash
 docker compose up -d
+```
+
+## Migrations
+
+```bash
+$ npm run migration:run
 ```
 
 ## Running the server

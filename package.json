@@ -6,7 +6,8 @@
     "build:server": "cd server/ && npm run build",
     "start:frontend": "cd frontend/ && npm run start",
     "build:frontend": "cd frontend/ && npm run build",
-    "install:all": "cd server/ && npm install && cd ../ && cd frontend/ && npm install"
+    "install:all": "cd server/ && npm install && cd ../ && cd frontend/ && npm install",
+    "migration:run": "cd server/ && npm run migration:run"
   },
   "author": "Filip Johansson",
   "license": "ISC"
