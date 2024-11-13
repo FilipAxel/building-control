@@ -96,4 +96,17 @@ export class BuildingsController {
       +buildingId,
     );
   }
+
+  @Patch(':id/adjust-temperature')
+  @ApiOperation({ summary: 'Adjust the temperature of a building' })
+  @ApiParam({
+    name: 'id',
+    description: 'The ID of the building to adjust temperature',
+  })
+  async adjustTemperature(
+    @Param('id') id: string,
+    @Body() { amount }: { amount: number },
+  ) {
+    return await this.temperatureSensorService.adjustTemperature(+id, amount);
+  }
 }

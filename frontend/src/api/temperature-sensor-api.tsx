@@ -45,3 +45,16 @@ export const getAverageBuildingTemperature = async (buildingId: number) => {
   );
   return data;
 };
+
+export const adjustTemperature = async (buildingId: number, amount: number) => {
+  const { data } = await axios.patch(
+    `${process.env.REACT_APP_API_URL}/buildings/${buildingId}/adjust-temperature`,
+    { amount },
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
+  return data;
+};

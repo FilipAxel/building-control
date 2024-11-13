@@ -129,4 +129,30 @@ export class TemperatureSensorService {
     );
     return Math.floor(totalTemperature / activeSensors.length);
   }
+
+  async adjustTemperature(buildingId: number, amount: number) {
+    const building = await this.entityManager.findOne(Building, {
+      where: { id: buildingId },
+      relations: { temperatureSensors: true },
+    });
+
+    if (!building) {
+      throw new NotFoundException(`Building with ID ${buildingId} not found`);
+    }
+
+    /* Magic box where the building heating system get request to increase/descress temperature  */
+
+    /* heating system is very fast so sensors can get the increase/descress amount directly */
+    const updatedSensors = building.temperatureSensors.map((sensor) => {
+      sensor.temperature = amount;
+      return sensor;
+    });
+
+    try {
+      await this.temperatureSensorRepository.save(updatedSensors);
+      return { message: `Temperature adjusted by ${amount} degrees.`, amount };
+    } catch (error) {
+      throw new BadRequestException('Failed to adjust temperature');
+    }
+  }
 }
